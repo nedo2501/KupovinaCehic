@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kupovina — Porodica Ćehić</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --accent: #c8f535;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #666;
+    --border: #2a2a2a;
+    --checked: #2a3a0f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .header { padding: 26px 24px 10px; }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .header h1 .accent { color: var(--accent); }
+  .header h1 .family {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 3px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tabs {
+    display: flex; gap: 6px; padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--bg); z-index: 10;
+  }
+  .tab {
+    flex: 1; padding: 9px 4px;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: transparent; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .tab-icon { display: block; font-size: 1rem; margin-bottom: 2px; }
+
+  .page { display: none; padding: 16px 24px; flex: 1; }
+  .page.active { display: block; }
+
+  /* LIVE PRICE BAR */
+  .live-price-bar {
+    background: linear-gradient(135deg, #1a2a04, #111a00);
+    border: 1px solid var(--accent); border-radius: 15px;
+    padding: 13px 17px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .lp-left { flex: 1; }
+  .lp-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 2px; }
+  .lp-amount { font-family: 'Syne', sans-serif; font-size: 1.55rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; line-height: 1; }
+  .lp-amount span { font-size: 0.85rem; font-weight: 400; }
+  .lp-right { text-align: right; }
+  .lp-remaining { font-size: 0.65rem; color: var(--muted); margin-bottom: 2px; }
+  .lp-remaining-amt { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+  .lp-mini-progress { width: 75px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 10px; margin-top: 5px; margin-left: auto; overflow: hidden; }
+  .lp-mini-fill { height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.4s ease; }
+
+  /* LIST */
+  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .list-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .badge { background: var(--accent); color: #000; font-size: 0.65rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+
+  .share-btn-top {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; background: transparent;
+    border: 1px solid var(--border); border-radius: 20px;
+    color: var(--muted); font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
+  }
+  .share-btn-top:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .item-card {
+    display: flex; align-items: center; gap: 13px;
+    padding: 13px 15px; background: var(--surface);
+    border-radius: 13px; margin-bottom: 8px; border: 1px solid var(--border);
+    transition: all 0.25s; cursor: pointer; user-select: none;
+  }
+  .item-card.checked { background: var(--checked); border-color: var(--accent); opacity: 0.85; }
+  .item-card.checked .item-name { text-decoration: line-through; color: var(--muted); }
+
+  .checkbox {
+    width: 25px; height: 25px; border: 2px solid var(--border);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; flex-shrink: 0; transition: all 0.2s; background: var(--surface2);
+  }
+  .item-card.checked .checkbox { background: var(--accent); border-color: var(--accent); color: #000; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-weight: 500; font-size: 0.95rem; transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-qty { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .item-price-tag { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem; color: var(--accent); flex-shrink: 0; }
+  .item-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 4px; border-radius: 6px; transition: all 0.15s; }
+  .item-del:hover { color: var(--accent2); background: rgba(255,107,53,0.1); }
+
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-state .icon { font-size: 2.8rem; margin-bottom: 10px; }
+  .empty-state p { font-size: 0.85rem; }
+
+  /* ADD PAGE */
+  .add-form { background: var(--surface); border-radius: 18px; padding: 20px; border: 1px solid var(--border); margin-bottom: 18px; }
+  .add-form h2 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: var(--accent); }
+  .field { margin-bottom: 11px; position: relative; }
+  .field label { display: block; font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .field input {
+    width: 100%; padding: 10px 13px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+
+  .autocomplete-list {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: #1e1e1e; border: 1px solid var(--accent);
+    border-radius: 10px; z-index: 50; max-height: 175px; overflow-y: auto;
+    margin-top: 2px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .autocomplete-item {
+    padding: 9px 13px; cursor: pointer; font-size: 0.88rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border); transition: background 0.15s;
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover { background: var(--surface2); }
+  .autocomplete-item .ac-price { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--accent); font-weight: 700; }
+  .autocomplete-item .ac-qty { font-size: 0.68rem; color: var(--muted); margin-left: 5px; }
+
+  .price-memory-note {
+    font-size: 0.7rem; color: var(--muted);
+    margin-top: -5px; margin-bottom: 9px; padding-left: 2px;
+  }
+  .price-memory-note span { color: var(--accent); font-weight: 700; }
+
+  .btn-add {
+    width: 100%; padding: 12px; background: var(--accent); color: #000; border: none; border-radius: 11px;
+    font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s, opacity 0.15s; letter-spacing: 0.03em;
+  }
+  .btn-add:active { transform: scale(0.98); opacity: 0.9; }
+
+  .quick-add h3 { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 9px; }
+  .quick-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; color: var(--text); }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* PRICE PAGE */
+  .price-hero {
+    background: linear-gradient(135deg, #1a2a04, #0f1a00);
+    border: 1px solid var(--accent); border-radius: 20px;
+    padding: 26px 20px; text-align: center; margin-bottom: 18px;
+    position: relative; overflow: hidden;
+  }
+  .price-hero::before {
+    content: ''; position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 50% 50%, rgba(200,245,53,0.05), transparent 60%);
+    pointer-events: none;
+  }
+  .price-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; }
+  .price-amount { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; }
+  .price-currency { font-size: 1.3rem; }
+  .price-sub { font-size: 0.76rem; color: var(--muted); margin-top: 6px; }
+
+  .price-progress { margin-bottom: 18px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar { height: 5px; background: var(--surface); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.5s ease; }
+
+  .price-list h3 { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 9px; }
+  .price-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .price-row:last-child { border-bottom: none; }
+  .price-row .pname { color: var(--text); }
+  .price-row .pname.unchecked { color: var(--muted); }
+  .price-row .amt { font-family: 'Syne', sans-serif; font-weight: 700; }
+  .price-row .amt.checked-amt { color: var(--accent); }
+  .price-row .amt.unchecked-amt { color: var(--muted); }
+
+  .reset-btn {
+    width: 100%; padding: 11px; background: transparent;
+    border: 1px solid var(--accent2); border-radius: 11px;
+    color: var(--accent2); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer; margin-top: 18px; letter-spacing: 0.05em; transition: all 0.2s;
+  }
+  .reset-btn:hover { background: rgba(255,107,53,0.1); }
+
+  /* SHARE PAGE */
+  .share-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 20px; margin-bottom: 14px;
+  }
+  .share-card h2 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .share-card p { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; line-height: 1.55; }
+
+  .share-big-btn {
+    display: block; width: 100%; padding: 13px;
+    background: var(--accent); color: #000; border: none; border-radius: 11px;
+    font-family: 'Syne', sans-serif; font-size: 0.93rem; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s; text-align: center; letter-spacing: 0.02em;
+    margin-bottom: 9px;
+  }
+  .share-big-btn:active { transform: scale(0.98); }
+  .share-big-btn.secondary {
+    background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500;
+  }
+  .share-big-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .share-link-box { display: none; margin-top: 13px; }
+  .share-link-box.visible { display: block; }
+  .share-link-box label { font-size: 0.67rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; display: block; }
+  .share-link-input {
+    width: 100%; padding: 9px 12px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    border-radius: 9px; color: var(--accent);
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem; outline: none;
+  }
+  .copy-link-btn {
+    width: 100%; margin-top: 7px; padding: 9px;
+    background: transparent; border: 1px solid var(--accent);
+    border-radius: 9px; color: var(--accent);
+    font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .copy-link-btn:hover { background: rgba(200,245,53,0.1); }
+
+  .imported-banner {
+    background: linear-gradient(135deg, #1a2a04, #111a00);
+    border: 1px solid var(--accent); border-radius: 12px;
+    padding: 12px 15px; margin-bottom: 14px;
+    font-size: 0.8rem; display: none;
+  }
+  .imported-banner.visible { display: block; }
+  .imported-banner strong { color: var(--accent); }
+
+  .share-preview-items { margin-top: 6px; }
+  .preview-item { font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .preview-item:last-child { border-bottom: none; }
+  .preview-item .pi-name { color: var(--text); }
+  .preview-item .pi-price { color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85); z-index: 200;
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--accent);
+    border-radius: 20px; padding: 26px; width: 100%; max-width: 400px;
+  }
+  .modal h2 { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; margin-bottom: 7px; }
+  .modal h2 span { color: var(--accent); }
+  .modal p { font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; line-height: 1.55; }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btn {
+    flex: 1; padding: 12px; border: none; border-radius: 11px;
+    font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  }
+  .modal-btn.confirm { background: var(--accent); color: #000; }
+  .modal-btn.cancel { background: var(--surface2); color: var(--muted); }
+  .modal-preview { max-height: 140px; overflow-y: auto; margin-bottom: 16px; }
+  .modal-preview-item { font-size: 0.78rem; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--text); display: flex; justify-content: space-between; }
+  .modal-preview-item:last-child { border-bottom: none; }
+  .modal-preview-item .mp { color: var(--accent); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.72rem; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--accent); color: #000;
+    padding: 11px 22px; border-radius: 30px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    z-index: 300; transition: transform 0.3s; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🛒 Kupov<span class="accent">i</span>na
+    <span class="family">Porodica Ćehić</span>
+  </h1>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('list')"><span class="tab-icon">📋</span>Lista</button>
+  <button class="tab" onclick="switchTab('add')"><span class="tab-icon">➕</span>Dodaj</button>
+  <button class="tab" onclick="switchTab('price')"><span class="tab-icon">💰</span>Cijena</button>
+  <button class="tab" onclick="switchTab('share')"><span class="tab-icon">📤</span>Dijeli</button>
+</div>
+
+<!-- LIST -->
+<div class="page active" id="page-list">
+  <div class="imported-banner" id="imported-banner">
+    📥 <strong>Lista primljena!</strong> Uvezeno <span id="import-count">0</span> novih namirnica.
+  </div>
+  <div class="live-price-bar">
+    <div class="lp-left">
+      <div class="lp-label">✓ Kupljeno</div>
+      <div class="lp-amount"><span>KM </span><span id="lp-total">0.00</span></div>
+    </div>
+    <div class="lp-right">
+      <div class="lp-remaining">Preostalo</div>
+      <div class="lp-remaining-amt" id="lp-remaining">0.00 KM</div>
+      <div class="lp-mini-progress"><div class="lp-mini-fill" id="lp-mini-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="list-header">
+    <span class="list-title">Namirnice</span>
+    <div style="display:flex;gap:7px;align-items:center">
+      <button class="share-btn-top" onclick="switchTab('share')">📤 Pošalji</button>
+      <span class="badge" id="item-count">0</span>
+    </div>
+  </div>
+  <div id="shopping-list"></div>
+</div>
+
+<!-- ADD -->
+<div class="page" id="page-add">
+  <div class="add-form">
+    <h2>+ Nova namirnica</h2>
+    <div class="field" id="field-name-wrap">
+      <label>Naziv</label>
+      <input type="text" id="input-name" placeholder="npr. Mlijeko" autocomplete="off"
+        oninput="onNameInput()" onblur="hideAutocomplete()" onkeydown="onNameKey(event)" />
+      <div class="autocomplete-list" id="autocomplete-list" style="display:none"></div>
+    </div>
+    <div class="field">
+      <label>Količina</label>
+      <input type="text" id="input-qty" placeholder="npr. 2 kom, 1 L" />
+    </div>
+    <div class="field">
+      <label>Cijena (KM)</label>
+      <input type="number" id="input-price" placeholder="0.00" min="0" step="0.01"
+        onchange="onPriceChange()" />
+    </div>
+    <div class="price-memory-note" id="price-memory-note" style="display:none">
+      💾 Zapamćena cijena: <span id="remembered-price">—</span> KM
+    </div>
+    <button class="btn-add" onclick="addItem()">DODAJ NA LISTU</button>
+  </div>
+  <div class="quick-add">
+    <h3>Brzi odabir</h3>
+    <div class="quick-chips" id="quick-chips"></div>
+  </div>
+</div>
+
+<!-- PRICE -->
+<div class="page" id="page-price">
+  <div class="price-hero">
+    <div class="price-label">Ukupno kupljeno</div>
+    <div class="price-amount"><span class="price-currency">KM </span><span id="total-price">0.00</span></div>
+    <div class="price-sub" id="price-sub">0 od 0 stavki označeno</div>
+  </div>
+  <div class="price-progress">
+    <div class="progress-label"><span>Napredak kupovine</span><span id="progress-pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="price-list">
+    <h3>Detalji</h3>
+    <div id="price-details"></div>
+  </div>
+  <button class="reset-btn" onclick="resetAll()">🔄 Resetuj sve kvačice</button>
+</div>
+
+<!-- SHARE -->
+<div class="page" id="page-share">
+  <div class="share-card">
+    <h2>📤 Pošalji listu porodici</h2>
+    <p>Generiši link i pošalji ga putem WhatsAppa, Vibera ili SMS-a. Kada čllan porodice otvori link, lista se automatski uveze na njihov telefon.</p>
+    <button class="share-big-btn" onclick="generateShareLink()">🔗 Generiši link</button>
+    <button class="share-big-btn secondary" onclick="shareWhatsApp()">💬 Pošalji WhatsApp</button>
+    <button class="share-big-btn secondary" onclick="shareViber()">📱 Pošalji Viber</button>
+    <div class="share-link-box" id="share-link-box">
+      <label>Link (kopiraj i pošalji):</label>
+      <input type="text" class="share-link-input" id="share-link-input" readonly onclick="this.select()" />
+      <button class="copy-link-btn" onclick="copyLink()">📋 Kopiraj link u clipboard</button>
+    </div>
+  </div>
+  <div class="share-card">
+    <h2>📋 Pregled liste</h2>
+    <p>Ovo će biti poslano (<span id="preview-count">0</span> stavki):</p>
+    <div class="share-preview-items" id="share-preview"></div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal">
+    <h2>📥 Primljena <span>lista!</span></h2>
+    <p>Član porodice ti je poslao listu sa <strong id="modal-count">0</strong> namirnica. Pregled:</p>
+    <div class="modal-preview" id="modal-preview"></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="dismissImport()">Otkaži</button>
+      <button class="modal-btn confirm" onclick="importList()">✓ Uvezi listu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'kupovina_cehic_v2';
+const MEMORY_KEY = 'kupovina_price_memory_v2';
+
+let priceMemory = {};
+try { priceMemory = JSON.parse(localStorage.getItem(MEMORY_KEY) || '{}'); } catch(e) {}
+
+// Seed defaults
+const defaults = [
+  { name: 'Hljeb', qty: '1 kom', price: 1.80 },
+  { name: 'Mlijeko', qty: '1 L', price: 1.50 },
+  { name: 'Jaja', qty: '12 kom', price: 2.90 },
+  { name: 'Maslac', qty: '250g', price: 2.50 },
+  { name: 'Šećer', qty: '1 kg', price: 1.40 },
+  { name: 'Brašno', qty: '1 kg', price: 1.20 },
+  { name: 'Ulje', qty: '1 L', price: 3.50 },
+  { name: 'Jogurt', qty: '500g', price: 1.30 },
+  { name: 'Sir', qty: '200g', price: 3.20 },
+  { name: 'Piletina', qty: '1 kg', price: 6.50 },
+  { name: 'Paradajz', qty: '500g', price: 1.00 },
+  { name: 'Banana', qty: '1 kg', price: 1.60 },
+  { name: 'Krastavac', qty: '500g', price: 0.90 },
+  { name: 'Luk', qty: '1 kg', price: 0.80 },
+  { name: 'Krompir', qty: '2 kg', price: 1.80 },
+  { name: 'Pasta', qty: '500g', price: 1.10 },
+  { name: 'Kafa', qty: '200g', price: 3.80 },
+  { name: 'Čaj', qty: '20 kesica', price: 1.40 },
+  { name: 'Sapun', qty: '1 kom', price: 0.90 },
+  { name: 'Šampon', qty: '300ml', price: 3.20 },
+  { name: 'Pavlaka', qty: '200ml', price: 1.10 },
+  { name: 'Riža', qty: '1 kg', price: 1.50 },
+  { name: 'Tjestenina', qty: '500g', price: 1.30 },
+  { name: 'Senf', qty: '250g', price: 1.20 },
+  { name: 'Kečap', qty: '500g', price: 1.60 },
+];
+defaults.forEach(d => {
+  const k = d.name.toLowerCase();
+  if (!priceMemory[k]) priceMemory[k] = { name: d.name, price: d.price, qty: d.qty };
+});
+saveMemory();
+
+let items = [];
+try { items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) {}
+
+let pendingImport = null;
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+function saveMemory() { localStorage.setItem(MEMORY_KEY, JSON.stringify(priceMemory)); }
+
+function rememberPrice(name, price, qty) {
+  if (!name || !price) return;
+  priceMemory[name.toLowerCase()] = { name, price: parseFloat(price), qty: qty || '' };
+  saveMemory();
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const tabs = ['list','add','price','share'];
+  document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
+  document.getElementById('page-' + tab).classList.add('active');
+  if (tab === 'price') updatePrice();
+  else if (tab === 'list') renderList();
+  else if (tab === 'share') renderSharePreview();
+}
+
+// ── LIST ──
+function renderList() {
+  const container = document.getElementById('shopping-list');
+  document.getElementById('item-count').textContent = items.length;
+
+  const ci = items.filter(i => i.checked);
+  const totalC = ci.reduce((s,i) => s + (parseFloat(i.price)||0), 0);
+  const totalA = items.reduce((s,i) => s + (parseFloat(i.price)||0), 0);
+  const rem = totalA - totalC;
+  const pct = totalA > 0 ? Math.round(totalC/totalA*100) : (items.length > 0 ? Math.round(ci.length/items.length*100) : 0);
+
+  document.getElementById('lp-total').textContent = totalC.toFixed(2);
+  document.getElementById('lp-remaining').textContent = rem.toFixed(2) + ' KM';
+  document.getElementById('lp-mini-fill').style.width = pct + '%';
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">🛒</div><p>Lista je prazna.<br>Dodaj namirnice klikom na ➕</p></div>`;
+    return;
+  }
+
+  container.innerHTML = items.map((item, i) => `
+    <div class="item-card ${item.checked ? 'checked' : ''}" onclick="toggleItem(${i})">
+      <div class="checkbox">${item.checked ? '✓' : ''}</div>
+      <div class="item-info">
+        <div class="item-name">${esc(item.name)}</div>
+        ${item.qty ? `<div class="item-qty">${esc(item.qty)}</div>` : ''}
+      </div>
+      ${item.price ? `<div class="item-price-tag">${parseFloat(item.price).toFixed(2)} KM</div>` : ''}
+      <button class="item-del" onclick="deleteItem(event,${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function toggleItem(i) {
+  items[i].checked = !items[i].checked;
+  save(); renderList();
+}
+
+function deleteItem(e, i) {
+  e.stopPropagation();
+  items.splice(i, 1);
+  save(); renderList();
+}
+
+// ── ADD + AUTOCOMPLETE ──
+let acIndex = -1;
+let acMatches = [];
+
+function onNameInput() {
+  const val = document.getElementById('input-name').value.trim().toLowerCase();
+  const list = document.getElementById('autocomplete-list');
+  const note = document.getElementById('price-memory-note');
+
+  if (!val) { list.style.display = 'none'; note.style.display = 'none'; return; }
+
+  acMatches = Object.values(priceMemory).filter(m => m.name.toLowerCase().startsWith(val));
+  acIndex = -1;
+
+  if (acMatches.length === 0) { list.style.display = 'none'; }
+  else {
+    list.innerHTML = acMatches.slice(0, 7).map((m, idx) => `
+      <div class="autocomplete-item" id="ac-${idx}"
+        onmousedown="selectAc(${idx})"
+        onmouseover="acIndex=${idx};highlightAc()">
+        <span>${esc(m.name)} <span class="ac-qty">${m.qty ? esc(m.qty) : ''}</span></span>
+        <span class="ac-price">${m.price.toFixed(2)} KM</span>
+      </div>
+    `).join('');
+    list.style.display = 'block';
+  }
+
+  // Show note for exact or close match
+  const exact = priceMemory[val];
+  if (exact) {
+    note.style.display = 'block';
+    document.getElementById('remembered-price').textContent = exact.price.toFixed(2);
+    document.getElementById('input-price').value = exact.price;
+    if (exact.qty && !document.getElementById('input-qty').value)
+      document.getElementById('input-qty').value = exact.qty;
+  } else { note.style.display = 'none'; }
+}
+
+function onNameKey(e) {
+  const list = document.getElementById('autocomplete-list');
+  if (list.style.display === 'none') return;
+  if (e.key === 'ArrowDown') { acIndex = Math.min(acIndex+1, acMatches.length-1); highlightAc(); e.preventDefault(); }
+  else if (e.key === 'ArrowUp') { acIndex = Math.max(acIndex-1, -1); highlightAc(); e.preventDefault(); }
+  else if (e.key === 'Enter' && acIndex >= 0) { selectAc(acIndex); e.preventDefault(); }
+  else if (e.key === 'Escape') { list.style.display = 'none'; }
+}
+
+function highlightAc() {
+  document.querySelectorAll('.autocomplete-item').forEach((el, i) => {
+    el.style.background = (i === acIndex) ? 'var(--surface2)' : '';
+  });
+}
+
+function selectAc(idx) {
+  const m = acMatches[idx];
+  if (!m) return;
+  document.getElementById('input-name').value = m.name;
+  document.getElementById('input-price').value = m.price;
+  if (m.qty) document.getElementById('input-qty').value = m.qty;
+  document.getElementById('autocomplete-list').style.display = 'none';
+  document.getElementById('price-memory-note').style.display = 'block';
+  document.getElementById('remembered-price').textContent = m.price.toFixed(2);
+}
+
+function hideAutocomplete() {
+  setTimeout(() => { document.getElementById('autocomplete-list').style.display = 'none'; }, 180);
+}
+
+function onPriceChange() {
+  // When user manually changes price, hide the memory note
+  const nameVal = document.getElementById('input-name').value.trim().toLowerCase();
+  const mem = priceMemory[nameVal];
+  const newPrice = parseFloat(document.getElementById('input-price').value);
+  if (mem && newPrice !== mem.price) {
+    document.getElementById('price-memory-note').style.display = 'none';
+  }
+}
+
+function addItem() {
+  const name = document.getElementById('input-name').value.trim();
+  const qty  = document.getElementById('input-qty').value.trim();
+  const price = parseFloat(document.getElementById('input-price').value) || 0;
+
+  if (!name) { showToast('Upiši naziv namirnice!'); return; }
+
+  items.push({ name, qty, price, checked: false, id: Date.now() });
+  save();
+  if (price > 0) rememberPrice(name, price, qty);
+
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-qty').value = '';
+  document.getElementById('input-price').value = '';
+  document.getElementById('price-memory-note').style.display = 'none';
+  document.getElementById('autocomplete-list').style.display = 'none';
+
+  showToast('✓ ' + name + ' dodano!');
+}
+
+function addQuick(name) {
+  const mem = priceMemory[name.toLowerCase()];
+  const price = mem ? mem.price : 0;
+  const qty   = mem ? (mem.qty || '') : '';
+  items.push({ name, qty, price, checked: false, id: Date.now() });
+  save();
+  showToast('✓ ' + name + ' dodano!');
+  renderList();
+}
+
+// ── PRICE PAGE ──
+function updatePrice() {
+  const checked = items.filter(i => i.checked);
+  const unchecked = items.filter(i => !i.checked);
+  const total = checked.reduce((s,i) => s + (parseFloat(i.price)||0), 0);
+  const pct = items.length ? Math.round(checked.length/items.length*100) : 0;
+
+  document.getElementById('total-price').textContent = total.toFixed(2);
+  document.getElementById('price-sub').textContent = checked.length + ' od ' + items.length + ' stavki označeno';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const det = document.getElementById('price-details');
+  if (!items.length) { det.innerHTML = '<div style="color:var(--muted);font-size:0.82rem;padding:14px 0">Nema stavki.</div>'; return; }
+
+  det.innerHTML = [
+    ...checked.map(i => `
+      <div class="price-row">
+        <span class="pname">✓ ${esc(i.name)}${i.qty ? ` <span style="color:var(--muted);font-size:0.7rem">(${esc(i.qty)})</span>` : ''}</span>
+        <span class="amt checked-amt">${i.price ? parseFloat(i.price).toFixed(2)+' KM' : '—'}</span>
+      </div>`),
+    ...unchecked.map(i => `
+      <div class="price-row">
+        <span class="pname unchecked">${esc(i.name)}${i.qty ? ` <span style="font-size:0.7rem">(${esc(i.qty)})</span>` : ''}</span>
+        <span class="amt unchecked-amt">${i.price ? parseFloat(i.price).toFixed(2)+' KM' : '—'}</span>
+      </div>`)
+  ].join('');
+}
+
+function resetAll() {
+  items.forEach(i => i.checked = false);
+  save(); updatePrice();
+  showToast('Sve kvačice resetovane');
+}
+
+// ── SHARE PAGE ──
+function renderSharePreview() {
+  const preview = document.getElementById('share-preview');
+  document.getElementById('preview-count').textContent = items.length;
+  if (!items.length) {
+    preview.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:8px 0">Nema stavki za slanje.</div>';
+    return;
+  }
+  preview.innerHTML = items.map(i => `
+    <div class="preview-item">
+      <span class="pi-name">${esc(i.name)}${i.qty ? ` <span style="color:var(--muted);font-size:0.7rem">(${esc(i.qty)})</span>` : ''}</span>
+      <span class="pi-price">${i.price ? parseFloat(i.price).toFixed(2)+' KM' : '—'}</span>
+    </div>
+  `).join('');
+}
+
+function buildShareUrl() {
+  if (!items.length) return null;
+  const data = JSON.stringify(items.map(i => ({ n: i.name, q: i.qty||'', p: i.price||0 })));
+  const encoded = btoa(unescape(encodeURIComponent(data)));
+  const base = window.location.href.split('?')[0].split('#')[0];
+  return base + '?lista=' + encoded;
+}
+
+function generateShareLink() {
+  const url = buildShareUrl();
+  if (!url) { showToast('Nema stavki za dijeljenje!'); return; }
+  document.getElementById('share-link-input').value = url;
+  document.getElementById('share-link-box').classList.add('visible');
+  showToast('🔗 Link generisan!');
+}
+
+function copyLink() {
+  const input = document.getElementById('share-link-input');
+  input.select();
+  navigator.clipboard.writeText(input.value)
+    .then(() => showToast('📋 Link kopiran!'))
+    .catch(() => { document.execCommand('copy'); showToast('📋 Link kopiran!'); });
+}
+
+function shareWhatsApp() {
+  const url = buildShareUrl();
+  if (!url) { showToast('Nema stavki za dijeljenje!'); return; }
+  const total = items.reduce((s,i) => s+(parseFloat(i.price)||0), 0);
+  const text = `🛒 *Kupovina — Porodica Ćehić*\n\nLista ima ${items.length} namirnica (ukupno ~${total.toFixed(2)} KM).\n\nKlikni na link da uvezete listu:\n${url}`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareViber() {
+  const url = buildShareUrl();
+  if (!url) { showToast('Nema stavki za dijeljenje!'); return; }
+  const total = items.reduce((s,i) => s+(parseFloat(i.price)||0), 0);
+  const text = `🛒 Kupovina — Porodica Ćehić\nLista ima ${items.length} namirnica (~${total.toFixed(2)} KM).\n${url}`;
+  window.open('viber://forward?text=' + encodeURIComponent(text), '_blank');
+}
+
+// ── IMPORT FROM URL ──
+function checkUrlImport() {
+  const params = new URLSearchParams(window.location.search);
+  const lista = params.get('lista');
+  if (!lista) return;
+
+  try {
+    const raw = JSON.parse(decodeURIComponent(escape(atob(lista))));
+    pendingImport = raw.map(i => ({
+      name: i.n, qty: i.q, price: parseFloat(i.p)||0,
+      checked: false, id: Date.now() + Math.random()
+    }));
+
+    document.getElementById('modal-count').textContent = pendingImport.length;
+    document.getElementById('modal-preview').innerHTML = pendingImport.slice(0,8).map(i => `
+      <div class="modal-preview-item">
+        <span>${esc(i.name)}${i.qty ? ` <span style="color:var(--muted);font-size:0.7rem">(${esc(i.qty)})</span>` : ''}</span>
+        <span class="mp">${i.price ? i.price.toFixed(2)+' KM' : '—'}</span>
+      </div>
+    `).join('') + (pendingImport.length > 8 ? `<div style="color:var(--muted);font-size:0.72rem;padding:5px 0">...i još ${pendingImport.length-8} stavki</div>` : '');
+
+    document.getElementById('import-modal').classList.add('visible');
+    window.history.replaceState({}, '', window.location.pathname);
+  } catch(e) { console.log('Invalid share link'); }
+}
+
+function importList() {
+  if (!pendingImport) return;
+  const existing = new Set(items.map(i => i.name.toLowerCase()));
+  const newOnes = pendingImport.filter(i => !existing.has(i.name.toLowerCase()));
+  items = [...items, ...newOnes];
+  save();
+  newOnes.forEach(i => { if (i.price > 0) rememberPrice(i.name, i.price, i.qty); });
+
+  document.getElementById('import-modal').classList.remove('visible');
+  document.getElementById('imported-banner').classList.add('visible');
+  document.getElementById('import-count').textContent = newOnes.length;
+  pendingImport = null;
+  renderList();
+  showToast('✓ Uvezeno ' + newOnes.length + ' novih stavki!');
+}
+
+function dismissImport() {
+  document.getElementById('import-modal').classList.remove('visible');
+  pendingImport = null;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── QUICK CHIPS ──
+const quickNames = ['Hljeb','Mlijeko','Jaja','Maslac','Šećer','Brašno','Ulje','Jogurt','Sir','Piletina','Paradajz','Banana','Kafa','Krompir','Luk','Riža','Pasta','Pavlaka'];
+document.getElementById('quick-chips').innerHTML = quickNames.map(name =>
+  `<div class="chip" onclick="addQuick('${name}')">${name}</div>`
+).join('');
+
+// ── INIT ──
+checkUrlImport();
+renderList();
+</script>
+</body>
+</html>
