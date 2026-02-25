@@ -395,10 +395,29 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── SYNC STATUS ── */
+.sync-bar{display:flex;align-items:center;gap:7px;padding:5px 18px 5px;background:var(--surface);border-bottom:1px solid var(--border);font-size:.63rem;color:var(--muted);min-height:28px}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.sync-dot.online{background:#4caf50;box-shadow:0 0 5px rgba(76,175,80,.6)}
+.sync-dot.syncing{background:var(--accent3);animation:sdpulse 1s infinite}
+.sync-dot.offline{background:var(--accent2)}
+.sync-dot.error{background:#f44336}
+@keyframes sdpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.sync-btn{margin-left:auto;padding:3px 9px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:.6rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.sync-btn:hover{border-color:var(--accent3);color:var(--accent3)}
 </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
+<div class="sync-bar" id="sync-bar">
+  <span class="sync-dot offline" id="sync-dot"></span>
+  <span id="sync-label">Spajanje na cloud…</span>
+  <button class="sync-btn" onclick="manualSync()">↻ Sync</button>
+</div>
 <div class="header">
   <h1>🛒 Kupov<span class="ac">i</span>na
     <span class="fam">Porodica Ćehić</span>
@@ -701,12 +720,156 @@ let activeBuyer=localStorage.getItem(BK)||'';
 let pendingImport=null,editKey=null,collapsedCats=new Set(),currentPeriod='week',finishBuyer='',recBuyer='',recCatSel='ostalo',recFilter='all',activeProfile='Nedim';
 
 
+// ════════════════════════════════════════════════
+//  FIREBASE INIT
+// ════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyCZL2mXvMKZVlMlcdl2Quf-bw3nboGNolo",
+  authDomain: "kupovina-cehic.firebaseapp.com",
+  databaseURL: "https://kupovina-cehic-default-rtdb.firebaseio.com",
+  projectId: "kupovina-cehic",
+  storageBucket: "kupovina-cehic.firebasestorage.app",
+  messagingSenderId: "664140526247",
+  appId: "1:664140526247:web:0230a26c8222e3a56ba182"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const ROOT = 'porodica_cehic';
+
+let syncEnabled = false;
+let _syncTimeout = null;
+
+function setSyncStatus(status, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot ' + status;
+  lbl.textContent = label;
+}
+
+// ── LOCAL SAVES (always keep localStorage as offline fallback) ──
 function saveCatalog(){localStorage.setItem(CK,JSON.stringify(catalog))}
-function saveItems(){localStorage.setItem(SK,JSON.stringify(items))}
+function saveItems(){localStorage.setItem(SK,JSON.stringify(items));schedulePush();}
 function saveMem(){localStorage.setItem(MK,JSON.stringify(priceMemory))}
-function saveHistory(){localStorage.setItem(HSK,JSON.stringify(history))}
-function saveReceipts(){localStorage.setItem(RSK,JSON.stringify(receipts))}
+function saveHistory(){localStorage.setItem(HSK,JSON.stringify(history));schedulePush();}
+function saveReceipts(){localStorage.setItem(RSK,JSON.stringify(receipts));schedulePush();}
 function saveBuyer(){localStorage.setItem(BK,activeBuyer)}
+
+// ── DEBOUNCED PUSH TO FIREBASE ──
+function schedulePush() {
+  if (!syncEnabled) return;
+  clearTimeout(_syncTimeout);
+  setSyncStatus('syncing', 'Čuvanje…');
+  _syncTimeout = setTimeout(pushToFirebase, 800);
+}
+
+async function pushToFirebase() {
+  if (!syncEnabled) return;
+  try {
+    await db.ref(ROOT).update({
+      items: items.length ? items : null,
+      history: history.length ? history : null,
+      receipts: receipts.length ? receipts : null,
+      lastUpdated: Date.now(),
+      lastDevice: navigator.userAgent.includes('Mobile') ? 'Mobitel' : 'Računar'
+    });
+    setSyncStatus('online', '☁️ Sačuvano · ' + new Date().toLocaleTimeString('bs',{hour:'2-digit',minute:'2-digit'}));
+  } catch(e) {
+    setSyncStatus('error', '⚠️ Greška pri čuvanju');
+    console.error('Firebase push error:', e);
+  }
+}
+
+async function manualSync() {
+  setSyncStatus('syncing', 'Sinkronizacija…');
+  try {
+    const snap = await db.ref(ROOT).get();
+    if (snap.exists()) {
+      const d = snap.val();
+      if (d.items)    { items    = d.items;    saveItemsLocal(); }
+      if (d.history)  { history  = d.history;  saveHistoryLocal(); }
+      if (d.receipts) { receipts = d.receipts; saveReceiptsLocal(); }
+      renderList();
+      const page = document.querySelector('.page.active');
+      if (page) {
+        const id = page.id.replace('page-','');
+        if (id==='rekap') renderRekap();
+        else if (id==='profil') renderProfile();
+        else if (id==='racuni') renderReceiptPage();
+      }
+      const when = d.lastUpdated ? new Date(d.lastUpdated).toLocaleTimeString('bs',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const who = d.lastDevice || '';
+      setSyncStatus('online', '✓ Sync · ' + when + (who?' · '+who:''));
+      toast('✓ Podaci ažurirani!');
+    } else {
+      setSyncStatus('online', '☁️ Baza prazna — čuvam lokalne podatke');
+      await pushToFirebase();
+    }
+  } catch(e) {
+    setSyncStatus('error', '⚠️ Nema veze');
+    toast('⚠️ Nije moguće spojiti se');
+  }
+}
+
+// Local-only saves (no push) used during sync pull
+function saveItemsLocal(){localStorage.setItem(SK,JSON.stringify(items))}
+function saveHistoryLocal(){localStorage.setItem(HSK,JSON.stringify(history))}
+function saveReceiptsLocal(){localStorage.setItem(RSK,JSON.stringify(receipts))}
+
+// ── REAL-TIME LISTENER ──
+function startRealtimeSync() {
+  db.ref(ROOT).on('value', snap => {
+    if (!snap.exists()) return;
+    const d = snap.val();
+    // Only update if remote data is newer than what we last pushed
+    const remote = d.lastUpdated || 0;
+    const local = parseInt(localStorage.getItem('kup_lastpush')||'0');
+    if (remote > local + 2000) {
+      // Remote is newer — pull it in
+      if (d.items)    { items    = d.items;    saveItemsLocal(); }
+      if (d.history)  { history  = d.history;  saveHistoryLocal(); }
+      if (d.receipts) { receipts = d.receipts; saveReceiptsLocal(); }
+      renderList();
+      const page = document.querySelector('.page.active');
+      if (page) {
+        const id = page.id.replace('page-','');
+        if (id==='rekap') renderRekap();
+        else if (id==='profil') renderProfile();
+        else if (id==='racuni') renderReceiptPage();
+      }
+      const when = new Date(remote).toLocaleTimeString('bs',{hour:'2-digit',minute:'2-digit'});
+      setSyncStatus('online', '🔄 Ažurirano · ' + when);
+    }
+  }, err => {
+    setSyncStatus('offline', '📴 Offline — lokalni podaci');
+  });
+}
+
+// ── INIT FIREBASE CONNECTION ──
+async function initFirebase() {
+  try {
+    const snap = await db.ref(ROOT + '/lastUpdated').get();
+    syncEnabled = true;
+    if (snap.exists()) {
+      // There is cloud data — pull it
+      await manualSync();
+    } else {
+      // First time — push local data to cloud
+      await pushToFirebase();
+      setSyncStatus('online', '☁️ Inicijalno čuvanje završeno');
+    }
+    startRealtimeSync();
+  } catch(e) {
+    setSyncStatus('offline', '📴 Offline — lokalni podaci');
+    console.log('Firebase offline, using localStorage');
+  }
+}
+
+// Track last push time
+const _origPush = pushToFirebase;
+async function pushToFirebaseTracked() {
+  await _origPush();
+  localStorage.setItem('kup_lastpush', Date.now().toString());
+}
 function remem(name,price,qty,cat){priceMemory[name.toLowerCase()]={name,price:parseFloat(price),qty:qty||'',cat:cat||'ostalo'};saveMem();}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function fmtDate(iso){const d=new Date(iso);const days=['Ned','Pon','Uto','Sri','Čet','Pet','Sub'];return`${days[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;}
@@ -1212,11 +1375,11 @@ function quickAdd(name){
 checkUrl();
 renderList();
 updateBuyerUI();
-// Set default rec buyer
 setRecBuyer('');
-// Init profile toggle styles
 document.getElementById('pt-nedim').className='pt-btn pt-nedim';
 document.getElementById('pt-azra').className='pt-btn';
+// Start Firebase
+initFirebase();
 </script>
 </body>
 </html>
