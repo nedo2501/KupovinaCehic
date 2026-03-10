@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kupovina — Porodica Ćehić</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kupovina">
+<link rel="apple-touch-icon" href="icon-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -392,6 +398,17 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent);color:#000;padding:9px 18px;border-radius:26px;font-family:'Syne',sans-serif;font-weight:700;font-size:.75rem;z-index:300;transition:transform .3s;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
+/* ── PWA INSTALL BANNER ── */
+.pwa-install-banner{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:linear-gradient(135deg,#1a2a04,#111a00);border-top:2px solid var(--accent);padding:14px 18px;display:flex;align-items:center;gap:12px;z-index:500;animation:slideUp .4s ease}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+.pwa-install-banner .pwa-icon{font-size:1.8rem;flex-shrink:0}
+.pwa-install-banner .pwa-text{flex:1}
+.pwa-install-banner .pwa-title{font-family:'Syne',sans-serif;font-weight:800;font-size:.82rem;color:var(--accent)}
+.pwa-install-banner .pwa-desc{font-size:.68rem;color:var(--muted);margin-top:2px}
+.pwa-install-btn{padding:8px 16px;background:var(--accent);color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;flex-shrink:0;transition:transform .15s}
+.pwa-install-btn:active{transform:scale(.95)}
+.pwa-close-btn{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px;flex-shrink:0}
+
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
@@ -406,6 +423,91 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes sdpulse{0%,100%{opacity:1}50%{opacity:.25}}
 .sync-btn{margin-left:auto;padding:3px 9px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:.6rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .sync-btn:hover{border-color:var(--accent3);color:var(--accent3)}
+
+/* ── ITEM NOTES ── */
+.item-note-text{font-size:.65rem;color:var(--accent3);margin-top:2px;font-style:italic;line-height:1.3;opacity:.8}
+
+/* ── PRIORITY ── */
+.item-card.urgent{border-left:3px solid var(--accent2);background:rgba(255,107,53,.05)}
+.item-card.urgent .item-name{color:var(--accent2)}
+.priority-tag{font-size:.5rem;background:var(--accent2);color:#fff;padding:1px 5px;border-radius:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;vertical-align:middle;margin-right:3px}
+.prio-toggle{display:flex;gap:5px}
+.prio-btn{flex:1;padding:7px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;text-align:center}
+.prio-btn.active-normal{border-color:var(--accent);color:var(--accent);background:rgba(200,245,53,.08)}
+.prio-btn.active-urgent{border-color:var(--accent2);color:var(--accent2);background:rgba(255,107,53,.08)}
+
+/* ── VOICE INPUT ── */
+.voice-btn{width:42px;height:42px;border-radius:50%;border:2px solid var(--accent3);background:transparent;color:var(--accent3);font-size:1.1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.voice-btn:hover{background:rgba(53,200,245,.1)}
+.voice-btn.recording{border-color:var(--accent2);color:var(--accent2);background:rgba(255,107,53,.15);animation:vpulse 1s infinite}
+@keyframes vpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.voice-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:9px}
+.voice-row .field{flex:1;margin-bottom:0}
+.voice-status{font-size:.65rem;color:var(--accent3);text-align:center;margin-bottom:6px}
+
+/* ── RECURRING ITEMS ── */
+.recurring-section{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:12px 14px;margin-bottom:11px}
+.recurring-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.recurring-title{font-family:'Syne',sans-serif;font-size:.74rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.07em}
+.recurring-add-all{padding:5px 11px;background:var(--accent3);color:#000;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;cursor:pointer;transition:transform .15s}
+.recurring-add-all:active{transform:scale(.95)}
+.recurring-chips{display:flex;flex-wrap:wrap;gap:4px}
+.rec-chip{padding:4px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:15px;font-size:.68rem;color:var(--text);display:flex;align-items:center;gap:4px}
+.rec-chip-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;padding:0 2px}
+.rec-chip-del:hover{color:var(--accent2)}
+.add-recurring-btn{padding:4px 9px;background:transparent;border:1px dashed var(--accent3);border-radius:15px;font-size:.68rem;color:var(--accent3);cursor:pointer;transition:all .15s}
+.add-recurring-btn:hover{background:rgba(53,200,245,.1)}
+
+/* ── SMART SUGGESTIONS ── */
+.suggestions-bar{background:linear-gradient(135deg,#0f1a2a,#0a1020);border:1px solid var(--accent3);border-radius:12px;padding:10px 13px;margin-bottom:11px;overflow:hidden}
+.sug-title{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);margin-bottom:7px;font-weight:700}
+.sug-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.sug-scroll::-webkit-scrollbar{display:none}
+.sug-chip{flex-shrink:0;padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.sug-chip:hover{border-color:var(--accent3);background:rgba(53,200,245,.08)}
+.sug-name{font-size:.72rem;color:var(--text);white-space:nowrap}
+.sug-days{font-size:.56rem;color:var(--muted);white-space:nowrap}
+
+/* ── PRESENCE ── */
+.presence-bar{display:flex;align-items:center;gap:6px;padding:2px 18px;min-height:0}
+.presence-bar:empty{display:none}
+.presence-indicator{display:flex;align-items:center;gap:5px;font-size:.6rem;color:var(--muted);padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-radius:15px}
+.presence-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.presence-dot.shopping{background:#4caf50;box-shadow:0 0 5px rgba(76,175,80,.5);animation:pdot 1.5s infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.4}}
+.presence-dot.idle{background:var(--muted)}
+
+/* ── SWIPE ── */
+.item-card.swiping{transition:none}
+.item-card.snap-back{transition:transform .25s ease}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── LIGHT THEME ── */
+body.light{--bg:#f5f5f5;--surface:#fff;--surface2:#eee;--surface3:#e0e0e0;--text:#1a1a1a;--muted:#888;--border:#ddd;--checked:#e8f5e0}
+body.light .sync-bar{background:#fff;border-bottom-color:#ddd}
+body.light .tabs{background:#f5f5f5}
+body.light .suggestions-bar{background:linear-gradient(135deg,#e8f4fd,#dbeef8);border-color:var(--accent3)}
+
+/* ── BUDGET ── */
+.budget-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:11px;display:flex;align-items:center;gap:10px}
+.budget-left{flex:1}
+.budget-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:2px}
+.budget-amt{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:800;color:var(--text)}
+.budget-remaining{font-size:.62rem;margin-top:1px}
+.budget-remaining.ok{color:var(--accent)}
+.budget-remaining.warn{color:var(--accent2)}
+.budget-remaining.over{color:#f44336}
+.budget-bar-wrap{flex:1;max-width:80px}
+.budget-prog{height:4px;background:var(--surface2);border-radius:10px;overflow:hidden}
+.budget-prog-fill{height:100%;border-radius:10px;transition:width .4s}
+.budget-prog-fill.ok{background:var(--accent)}
+.budget-prog-fill.warn{background:var(--accent2)}
+.budget-prog-fill.over{background:#f44336}
+.budget-edit-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:4px 8px;color:var(--muted);font-size:.6rem;cursor:pointer;transition:all .15s;flex-shrink:0}
+.budget-edit-btn:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -418,11 +520,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <span id="sync-label">Spajanje na cloud…</span>
   <button class="sync-btn" onclick="manualSync()">↻ Sync</button>
 </div>
+<div class="presence-bar" id="presence-bar"></div>
 <div class="header">
   <h1>🛒 Kupov<span class="ac">i</span>na
     <span class="fam">Porodica Ćehić</span>
   </h1>
-  <div class="header-avatars">
+  <div class="header-avatars" style="gap:6px;align-items:center">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Svijetli/tamni mod" id="theme-btn">☀️</button>
     <div class="hav n" onclick="sw('profil');setProfile('Nedim')" title="Nedimov profil">N</div>
     <div class="hav a" onclick="sw('profil');setProfile('Azra')"  title="Azrin profil">A</div>
   </div>
@@ -462,6 +566,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="lb-bar"><div class="lb-fill" id="lb-fill" style="width:0%"></div></div>
     </div>
   </div>
+  <div id="budget-section"></div>
+  <div id="suggestions-section"></div>
+  <div id="recurring-section"></div>
   <div class="list-hdr">
     <span class="list-title">Namirnice</span>
     <div class="hdr-btns">
@@ -477,12 +584,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div class="page" id="page-add">
   <div class="add-form">
     <h2>+ Nova namirnica</h2>
-    <div class="field">
-      <label>Naziv</label>
-      <input type="text" id="in-name" placeholder="npr. Mlijeko" autocomplete="off"
-        oninput="onNameInput()" onblur="hideAc()" onkeydown="onNameKey(event)"/>
-      <div class="ac-list" id="ac-list" style="display:none"></div>
+    <div class="voice-row">
+      <div class="field">
+        <label>Naziv</label>
+        <input type="text" id="in-name" placeholder="npr. Mlijeko" autocomplete="off"
+          oninput="onNameInput()" onblur="hideAc()" onkeydown="onNameKey(event)"/>
+        <div class="ac-list" id="ac-list" style="display:none"></div>
+      </div>
+      <button class="voice-btn" id="voice-btn" onclick="toggleVoice()" title="Glasovni unos">🎤</button>
     </div>
+    <div class="voice-status" id="voice-status" style="display:none"></div>
     <div class="row2">
       <div class="field"><label>Količina</label><input type="text" id="in-qty" placeholder="npr. 1 L"/></div>
       <div class="field"><label>Cijena (KM)</label><input type="number" id="in-price" placeholder="0.00" min="0" step="0.01"/></div>
@@ -498,6 +609,17 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <select id="in-store">
         <option value="">Bilo koja</option><option value="Bingo">🔵 Bingo</option><option value="DM">🔴 DM Drogerie</option><option value="Konzum">🟠 Konzum</option><option value="Mercator">🟢 Mercator</option><option value="Pijaca">🟡 Pijaca</option>
       </select>
+    </div>
+    <div class="field">
+      <label>Prioritet</label>
+      <div class="prio-toggle">
+        <button class="prio-btn active-normal" id="prio-normal" type="button" onclick="setPriority('normal')">Normalan</button>
+        <button class="prio-btn" id="prio-urgent" type="button" onclick="setPriority('urgent')">🔴 Hitno</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Napomena (opcionalno)</label>
+      <input type="text" id="in-note" placeholder="npr. Plavi paket, ne crveni"/>
     </div>
     <div class="mem-note" id="mem-note" style="display:none">💾 Zapamćena: <span id="mem-price-show">—</span> KM</div>
     <button class="btn-add" onclick="addItem()">DODAJ NA LISTU</button>
@@ -674,6 +796,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 //  STORAGE KEYS
 // ════════════════════════════════════════════════
 const SK='kup_items_v3',MK='kup_mem_v3',CK='kup_cat_v3',HSK='kup_hist_v2',RSK='kup_receipts_v1',BK='kup_buyer_v1';
+const RCK='kup_recurring_v1',BGK='kup_budget_v1',THK='kup_theme_v1';
 
 // ════════════════════════════════════════════════
 //  CATEGORY META
@@ -718,6 +841,11 @@ let receipts=[];try{receipts=JSON.parse(localStorage.getItem(RSK)||'[]');}catch(
 
 let activeBuyer=localStorage.getItem(BK)||'';
 let pendingImport=null,editKey=null,collapsedCats=new Set(),currentPeriod='week',finishBuyer='',recBuyer='',recCatSel='ostalo',recFilter='all',activeProfile='Nedim';
+let addPriority='normal',justSwiped=false;
+let recurringItems=[];try{recurringItems=JSON.parse(localStorage.getItem(RCK)||'[]');}catch(e){}
+let weeklyBudget=parseFloat(localStorage.getItem(BGK))||0;
+let currentTheme=localStorage.getItem(THK)||'dark';
+let notifPermission=false;
 
 
 // ════════════════════════════════════════════════
@@ -825,9 +953,11 @@ function startRealtimeSync() {
     const local = parseInt(localStorage.getItem('kup_lastpush')||'0');
     if (remote > local + 2000) {
       // Remote is newer — pull it in
+      const oldLen=items.length;
       if (d.items)    { items    = d.items;    saveItemsLocal(); }
       if (d.history)  { history  = d.history;  saveHistoryLocal(); }
       if (d.receipts) { receipts = d.receipts; saveReceiptsLocal(); }
+      if (d.items&&d.items.length>oldLen) showNotification('Kupovina 🛒',(d.items.length-oldLen)+' novih namirnica dodano na listu!');
       renderList();
       const page = document.querySelector('.page.active');
       if (page) {
@@ -858,6 +988,8 @@ async function initFirebase() {
       setSyncStatus('online', '☁️ Inicijalno čuvanje završeno');
     }
     startRealtimeSync();
+    listenPresence();
+    if(activeBuyer)updatePresence(false);
   } catch(e) {
     setSyncStatus('offline', '📴 Offline — lokalni podaci');
     console.log('Firebase offline, using localStorage');
@@ -895,7 +1027,7 @@ function sw(tab){
 // ════════════════════════════════════════════════
 //  BUYER
 // ════════════════════════════════════════════════
-function selectBuyer(b){activeBuyer=b;saveBuyer();updateBuyerUI();toast((b==='Nedim'?'💚 Nedim':'💗 Azra')+' je aktivan kupac');}
+function selectBuyer(b){activeBuyer=b;saveBuyer();updateBuyerUI();updatePresence(true);toast((b==='Nedim'?'💚 Nedim':'💗 Azra')+' je aktivan kupac');}
 function updateBuyerUI(){
   document.getElementById('btn-nedim').className='buyer-btn'+(activeBuyer==='Nedim'?' nedim-active':'');
   document.getElementById('btn-azra').className='buyer-btn'+(activeBuyer==='Azra'?' azra-active':'');
@@ -916,22 +1048,26 @@ function renderList(){
   document.getElementById('lb-rem').textContent=(tA-tC).toFixed(2)+' KM';
   const pct=tA>0?Math.round(tC/tA*100):(items.length>0?Math.round(ci.length/items.length*100):0);
   document.getElementById('lb-fill').style.width=pct+'%';
+  renderBudget();renderSuggestions();renderRecurring();
   if(!items.length){c.innerHTML='<div class="empty-state"><div class="icon">🛒</div><p>Lista je prazna.<br>Dodaj namirnice ili ih odaberi iz Kataloga!</p></div>';return;}
   const groups={};
   items.forEach((item,i)=>{const cat=item.cat||'ostalo';if(!groups[cat])groups[cat]=[];groups[cat].push({item,i});});
   let html='';
   Object.entries(groups).forEach(([cat,entries])=>{
+    entries.sort((a,b)=>{const pa=(a.item.priority==='urgent')?0:1;const pb=(b.item.priority==='urgent')?0:1;return pa-pb;});
     const m=CAT_META[cat]||CAT_META.ostalo,col=collapsedCats.has(cat);
     html+=`<div class="cat-group"><div class="cat-header" onclick="toggleCat('${cat}')"><span class="cat-icon">${m.icon}</span><span class="cat-name" style="color:var(--muted)">${m.name}</span><span class="cat-badge">${entries.length}</span><span class="cat-toggle ${col?'collapsed':''}">▼</span></div><div class="cat-items ${col?'collapsed':''}">`;
     entries.forEach(({item,i})=>{
-      html+=`<div class="item-card ${item.checked?'checked':''}" onclick="toggleItem(${i})"><div class="chk">${item.checked?'✓':''}</div><div class="item-info"><div class="item-name">${esc(item.name)}</div>${item.qty?`<div class="item-qty">${esc(item.qty)}</div>`:''}${item.store?`<div class="item-store">${esc(item.store)}</div>`:''}</div>${item.price?`<div class="item-price-tag">${parseFloat(item.price).toFixed(2)} KM</div>`:''}<button class="item-del" onclick="delItem(event,${i})">✕</button></div>`;
+      const isU=item.priority==='urgent';
+      html+=`<div class="item-card ${item.checked?'checked':''} ${isU?'urgent':''}" data-idx="${i}" onclick="toggleItem(${i})"><div class="chk">${item.checked?'✓':''}</div><div class="item-info"><div class="item-name">${isU?'<span class="priority-tag">HITNO</span> ':''}${esc(item.name)}</div>${item.qty?`<div class="item-qty">${esc(item.qty)}</div>`:''}${item.store?`<div class="item-store">${esc(item.store)}</div>`:''}${item.note?`<div class="item-note-text">💬 ${esc(item.note)}</div>`:''}</div>${item.price?`<div class="item-price-tag">${parseFloat(item.price).toFixed(2)} KM</div>`:''}<button class="item-del" onclick="delItem(event,${i})">✕</button></div>`;
     });
     html+=`</div></div>`;
   });
   c.innerHTML=html;
+  c.querySelectorAll('.item-card').forEach(el=>{const idx=parseInt(el.dataset.idx);if(!isNaN(idx))initSwipe(el,idx);});
 }
 function toggleCat(cat){collapsedCats.has(cat)?collapsedCats.delete(cat):collapsedCats.add(cat);renderList();}
-function toggleItem(i){items[i].checked=!items[i].checked;saveItems();renderList();}
+function toggleItem(i){if(justSwiped)return;items[i].checked=!items[i].checked;saveItems();renderList();}
 function delItem(e,i){e.stopPropagation();items.splice(i,1);saveItems();renderList();}
 
 // ════════════════════════════════════════════════
@@ -955,6 +1091,7 @@ function confirmFinish(){
   const total=items.reduce((s,i)=>s+(parseFloat(i.price)||0),0);
   history.unshift({id:Date.now(),date:new Date().toISOString(),buyer:finishBuyer,total,itemCount:items.length,items:items.map(i=>({name:i.name,price:parseFloat(i.price)||0,cat:i.cat||'ostalo'})),type:'shop'});
   saveHistory();activeBuyer=finishBuyer;saveBuyer();items=[];saveItems();closeFinish();renderList();
+  updatePresence(false);
   toast('✅ Kupovina sačuvana! '+(finishBuyer==='Nedim'?'💚':'💗'));
 }
 
@@ -1263,17 +1400,19 @@ function addItem(){
   const price=parseFloat(document.getElementById('in-price').value)||0;
   const cat=document.getElementById('in-cat').value||'ostalo';
   const store=document.getElementById('in-store').value||'';
+  const note=document.getElementById('in-note').value.trim();
   if(!name){toast('Upiši naziv!');return;}
-  items.push({name,qty,price,cat,store,checked:false,id:Date.now()});saveItems();
+  items.push({name,qty,price,cat,store,checked:false,id:Date.now(),priority:addPriority,note});saveItems();
   if(price>0)remem(name,price,qty,cat);
-  document.getElementById('in-name').value='';document.getElementById('in-qty').value='';document.getElementById('in-price').value='';
+  document.getElementById('in-name').value='';document.getElementById('in-qty').value='';document.getElementById('in-price').value='';document.getElementById('in-note').value='';
   document.getElementById('mem-note').style.display='none';document.getElementById('ac-list').style.display='none';
+  setPriority('normal');
   toast('✓ '+name+' dodano!');
 }
 function addFromCatalog(idx){
   const p=catalog[idx];
   if(items.find(i=>i.name.toLowerCase()===p.name.toLowerCase()&&!i.checked)){toast('⚠️ Već na listi!');return;}
-  items.push({name:p.name,qty:p.qty,price:p.price,cat:p.cat,store:p.store||'',checked:false,id:Date.now()});saveItems();toast('✓ '+p.name);
+  items.push({name:p.name,qty:p.qty,price:p.price,cat:p.cat,store:p.store||'',checked:false,id:Date.now(),priority:'normal',note:''});saveItems();toast('✓ '+p.name);
   const btn=document.getElementById('cat-add-'+idx);if(btn){btn.textContent='✓';setTimeout(()=>btn.textContent='+',1200);}
 }
 
@@ -1332,7 +1471,7 @@ function checkUrl(){
   const lista=new URLSearchParams(window.location.search).get('lista');if(!lista)return;
   try{
     const raw=JSON.parse(decodeURIComponent(escape(atob(lista))));
-    pendingImport=raw.map(i=>({name:i.n,qty:i.q,price:parseFloat(i.p)||0,cat:i.c||'ostalo',store:i.s||'',checked:false,id:Date.now()+Math.random()}));
+    pendingImport=raw.map(i=>({name:i.n,qty:i.q,price:parseFloat(i.p)||0,cat:i.c||'ostalo',store:i.s||'',checked:false,id:Date.now()+Math.random(),priority:'normal',note:''}));
     document.getElementById('imp-modal-cnt').textContent=pendingImport.length;
     document.getElementById('imp-modal-prev').innerHTML=pendingImport.slice(0,8).map(i=>`<div class="modal-pi"><span>${esc(i.name)}</span><span class="mp">${i.price?i.price.toFixed(2)+' KM':'—'}</span></div>`).join('')+(pendingImport.length>8?`<div style="color:var(--muted);font-size:.68rem;padding:3px 0">...i još ${pendingImport.length-8}</div>`:'');
     document.getElementById('imp-modal').classList.add('visible');
@@ -1357,6 +1496,250 @@ function dismissImp(){document.getElementById('imp-modal').classList.remove('vis
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ════════════════════════════════════════════════
+//  THEME (Dark/Light)
+// ════════════════════════════════════════════════
+function applyTheme(){
+  document.body.classList.toggle('light',currentTheme==='light');
+  const btn=document.getElementById('theme-btn');
+  if(btn)btn.textContent=currentTheme==='light'?'🌙':'☀️';
+}
+function toggleTheme(){
+  currentTheme=currentTheme==='dark'?'light':'dark';
+  localStorage.setItem(THK,currentTheme);
+  applyTheme();
+  toast(currentTheme==='light'?'☀️ Svijetli mod':'🌙 Tamni mod');
+}
+
+// ════════════════════════════════════════════════
+//  PRIORITY
+// ════════════════════════════════════════════════
+function setPriority(p){
+  addPriority=p;
+  document.getElementById('prio-normal').className='prio-btn'+(p==='normal'?' active-normal':'');
+  document.getElementById('prio-urgent').className='prio-btn'+(p==='urgent'?' active-urgent':'');
+}
+
+// ════════════════════════════════════════════════
+//  BUDGET
+// ════════════════════════════════════════════════
+function renderBudget(){
+  const el=document.getElementById('budget-section');if(!el)return;
+  if(!weeklyBudget){
+    el.innerHTML='<div class="budget-bar"><div class="budget-left"><div class="budget-label">Sedmični budžet</div><div class="budget-amt" style="color:var(--muted);font-size:.72rem">Nije postavljen</div></div><button class="budget-edit-btn" onclick="editBudget()">Postavi</button></div>';
+    return;
+  }
+  const now=new Date(),wDay=now.getDay()||7,wFrom=new Date(now);wFrom.setDate(now.getDate()-(wDay-1));wFrom.setHours(0,0,0,0);
+  const weekShops=history.filter(h=>new Date(h.date)>=wFrom).reduce((s,h)=>s+h.total,0);
+  const weekRecs=receipts.filter(r=>new Date(r.date)>=wFrom).reduce((s,r)=>s+r.amount,0);
+  const currentSpent=items.filter(i=>i.checked).reduce((s,i)=>s+(parseFloat(i.price)||0),0);
+  const spent=weekShops+weekRecs+currentSpent;
+  const remaining=weeklyBudget-spent;
+  const pct=Math.min((spent/weeklyBudget)*100,100);
+  const status=pct>=100?'over':pct>=75?'warn':'ok';
+  el.innerHTML=`<div class="budget-bar"><div class="budget-left"><div class="budget-label">Sedmični budžet</div><div class="budget-amt">${spent.toFixed(2)} / ${weeklyBudget.toFixed(2)} KM</div><div class="budget-remaining ${status}">${remaining>=0?'Preostalo: '+remaining.toFixed(2)+' KM':'Prekoračeno: '+Math.abs(remaining).toFixed(2)+' KM'}</div></div><div class="budget-bar-wrap"><div class="budget-prog"><div class="budget-prog-fill ${status}" style="width:${pct}%"></div></div></div><button class="budget-edit-btn" onclick="editBudget()">✏️</button></div>`;
+}
+function editBudget(){
+  const val=prompt('Sedmični budžet (KM):',weeklyBudget||'');
+  if(val===null)return;
+  weeklyBudget=parseFloat(val)||0;
+  localStorage.setItem(BGK,weeklyBudget);
+  renderBudget();
+  toast(weeklyBudget>0?'💰 Budžet: '+weeklyBudget.toFixed(2)+' KM':'Budžet uklonjen');
+}
+
+// ════════════════════════════════════════════════
+//  RECURRING ITEMS
+// ════════════════════════════════════════════════
+function saveRecurring(){localStorage.setItem(RCK,JSON.stringify(recurringItems));}
+function renderRecurring(){
+  const el=document.getElementById('recurring-section');if(!el)return;
+  if(!recurringItems.length){
+    el.innerHTML='<div class="recurring-section"><div class="recurring-hdr"><span class="recurring-title">🔄 Sedmične namirnice</span></div><div style="font-size:.68rem;color:var(--muted);margin-bottom:6px">Dodaj artikle koje kupuješ svake sedmice.</div><button class="add-recurring-btn" onclick="addRecurringPrompt()">+ Dodaj sedmičnu</button></div>';
+    return;
+  }
+  el.innerHTML='<div class="recurring-section"><div class="recurring-hdr"><span class="recurring-title">🔄 Sedmične ('+recurringItems.length+')</span><button class="recurring-add-all" onclick="addAllRecurring()">+ Dodaj sve na listu</button></div><div class="recurring-chips">'+recurringItems.map((r,i)=>'<span class="rec-chip">'+esc(r.name)+'<button class="rec-chip-del" onclick="removeRecurring('+i+')">✕</button></span>').join('')+'<button class="add-recurring-btn" onclick="addRecurringPrompt()">+</button></div></div>';
+}
+function addRecurringPrompt(){
+  const name=prompt('Naziv namirnice za sedmičnu listu:');
+  if(!name||!name.trim())return;
+  const n=name.trim();
+  if(recurringItems.find(r=>r.name.toLowerCase()===n.toLowerCase())){toast('Već postoji!');return;}
+  const mem=priceMemory[n.toLowerCase()];
+  recurringItems.push({name:mem?mem.name:n,qty:mem?mem.qty:'',price:mem?mem.price:0,cat:mem?mem.cat:'ostalo'});
+  saveRecurring();renderRecurring();toast('🔄 '+n+' dodano u sedmične');
+}
+function removeRecurring(i){recurringItems.splice(i,1);saveRecurring();renderRecurring();}
+function addAllRecurring(){
+  let added=0;
+  recurringItems.forEach(r=>{
+    if(items.find(i=>i.name.toLowerCase()===r.name.toLowerCase()&&!i.checked))return;
+    items.push({name:r.name,qty:r.qty||'',price:r.price||0,cat:r.cat||'ostalo',store:'',checked:false,id:Date.now()+Math.random(),priority:'normal',note:''});
+    added++;
+  });
+  if(added>0){saveItems();renderList();toast('🔄 Dodano '+added+' sedmičnih');}
+  else toast('Sve sedmične su već na listi!');
+}
+
+// ════════════════════════════════════════════════
+//  SMART SUGGESTIONS
+// ════════════════════════════════════════════════
+function getSuggestions(){
+  const itemFreq={};const now=new Date();
+  history.forEach(h=>{
+    (h.items||[]).forEach(it=>{
+      const key=it.name.toLowerCase();
+      if(!itemFreq[key])itemFreq[key]={name:it.name,dates:[],count:0,cat:it.cat,lastPrice:it.price};
+      itemFreq[key].dates.push(new Date(h.date));
+      itemFreq[key].count++;
+      if(it.price)itemFreq[key].lastPrice=it.price;
+    });
+  });
+  const currentNames=new Set(items.map(i=>i.name.toLowerCase()));
+  return Object.values(itemFreq)
+    .filter(f=>f.count>=2&&!currentNames.has(f.name.toLowerCase()))
+    .map(f=>{
+      const lastDate=f.dates.sort((a,b)=>b-a)[0];
+      const daysSince=Math.floor((now-lastDate)/(1000*60*60*24));
+      const avgInterval=f.dates.length>1?f.dates.sort((a,b)=>a-b).reduce((sum,d,i,arr)=>i===0?0:sum+(d-arr[i-1])/(1000*60*60*24),0)/(f.dates.length-1):30;
+      return{...f,daysSince,avgInterval,score:daysSince/Math.max(avgInterval,1)};
+    })
+    .filter(f=>f.daysSince>=3)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,8);
+}
+function renderSuggestions(){
+  const el=document.getElementById('suggestions-section');if(!el)return;
+  const suggestions=getSuggestions();
+  if(!suggestions.length){el.innerHTML='';return;}
+  el.innerHTML='<div class="suggestions-bar"><div class="sug-title">💡 Možda trebate</div><div class="sug-scroll">'+suggestions.map(s=>'<div class="sug-chip" onclick="addSuggestion(\''+esc(s.name).replace(/'/g,"\\'")+'\')">'+'<span class="sug-name">'+esc(s.name)+'</span><span class="sug-days">'+s.daysSince+'d</span></div>').join('')+'</div></div>';
+}
+function addSuggestion(name){
+  const mem=priceMemory[name.toLowerCase()];
+  if(items.find(i=>i.name.toLowerCase()===name.toLowerCase()&&!i.checked)){toast('Već na listi!');return;}
+  items.push({name:mem?mem.name:name,qty:mem?mem.qty:'',price:mem?mem.price:0,cat:mem?mem.cat:'ostalo',store:'',checked:false,id:Date.now(),priority:'normal',note:''});
+  saveItems();renderList();toast('✓ '+name);
+}
+
+// ════════════════════════════════════════════════
+//  PRESENCE (Who is shopping)
+// ════════════════════════════════════════════════
+function updatePresence(isShopping){
+  if(!syncEnabled||!activeBuyer)return;
+  db.ref(ROOT+'/presence/'+activeBuyer.toLowerCase()).set({
+    active:true,shopping:isShopping,lastSeen:Date.now(),
+    device:navigator.userAgent.includes('Mobile')?'Mobitel':'Računar'
+  }).catch(()=>{});
+}
+function listenPresence(){
+  if(!syncEnabled)return;
+  db.ref(ROOT+'/presence').on('value',snap=>{
+    const el=document.getElementById('presence-bar');if(!el)return;
+    if(!snap.exists()){el.innerHTML='';return;}
+    const data=snap.val(),now=Date.now();
+    let html='';
+    Object.entries(data).forEach(([user,info])=>{
+      if(now-info.lastSeen>5*60*1000)return;
+      const name=user.charAt(0).toUpperCase()+user.slice(1);
+      const colorVar=user==='nedim'?'var(--nedim)':'var(--azra)';
+      html+='<div class="presence-indicator" style="border-color:'+(info.shopping?colorVar:'var(--border)')+'"><span class="presence-dot '+(info.shopping?'shopping':'idle')+'"></span><span style="color:'+colorVar+';font-weight:700">'+name+'</span><span>'+(info.shopping?'🛒 kupuje':'online')+'</span></div>';
+    });
+    el.innerHTML=html;
+  });
+}
+
+// ════════════════════════════════════════════════
+//  NOTIFICATIONS (Browser API)
+// ════════════════════════════════════════════════
+function requestNotifPermission(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='granted'){notifPermission=true;return;}
+  if(Notification.permission!=='denied'){
+    Notification.requestPermission().then(p=>{notifPermission=p==='granted';});
+  }
+}
+function showNotification(title,body){
+  if(!notifPermission||document.hasFocus())return;
+  try{new Notification(title,{body,icon:'icon-192.svg',tag:'kupovina-update'});}catch(e){}
+}
+
+// ════════════════════════════════════════════════
+//  VOICE INPUT (Web Speech API)
+// ════════════════════════════════════════════════
+let recognition=null,isRecording=false;
+function initVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){const vb=document.getElementById('voice-btn');if(vb)vb.style.display='none';return;}
+  recognition=new SR();
+  recognition.lang='bs-BA';
+  recognition.continuous=false;
+  recognition.interimResults=false;
+  recognition.onresult=(e)=>{
+    const text=e.results[0][0].transcript;
+    stopVoice();
+    const parts=text.split(/[,i]+/).map(s=>s.trim()).filter(s=>s);
+    if(parts.length===1){
+      document.getElementById('in-name').value=parts[0];
+      onNameInput();
+      toast('🎤 '+parts[0]);
+    }else{
+      let added=0;
+      parts.forEach(name=>{
+        if(!name)return;
+        const mem=priceMemory[name.toLowerCase()];
+        const itemName=mem?mem.name:name.charAt(0).toUpperCase()+name.slice(1);
+        if(items.find(i=>i.name.toLowerCase()===itemName.toLowerCase()&&!i.checked))return;
+        items.push({name:itemName,qty:mem?mem.qty:'',price:mem?mem.price:0,cat:mem?mem.cat:'ostalo',store:'',checked:false,id:Date.now()+Math.random(),priority:'normal',note:''});
+        added++;
+      });
+      if(added>0){saveItems();renderList();toast('🎤 Dodano '+added+' stavki');}
+      else toast('Sve je već na listi!');
+    }
+  };
+  recognition.onerror=()=>{stopVoice();toast('Greška sa mikrofonom');};
+  recognition.onend=()=>{stopVoice();};
+}
+function startVoice(){
+  if(!recognition){toast('Preglednik ne podržava glasovni unos');return;}
+  isRecording=true;
+  const btn=document.getElementById('voice-btn');
+  btn.classList.add('recording');btn.textContent='⏹';
+  const st=document.getElementById('voice-status');
+  st.textContent='🎤 Slušam… Recite namirnice';st.style.display='block';
+  recognition.start();
+}
+function stopVoice(){
+  isRecording=false;
+  const btn=document.getElementById('voice-btn');
+  if(btn){btn.classList.remove('recording');btn.textContent='🎤';}
+  const st=document.getElementById('voice-status');
+  if(st)st.style.display='none';
+  try{recognition.stop();}catch(e){}
+}
+function toggleVoice(){if(isRecording)stopVoice();else startVoice();}
+
+// ════════════════════════════════════════════════
+//  SWIPE GESTURES
+// ════════════════════════════════════════════════
+function initSwipe(el,idx){
+  let sx=0,sy=0,sw=false;
+  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});
+  el.addEventListener('touchmove',e=>{
+    const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>15){sw=true;el.style.transform='translateX('+dx+'px)';el.classList.add('swiping');e.preventDefault();}
+  },{passive:false});
+  el.addEventListener('touchend',e=>{
+    if(!sw)return;
+    const dx=e.changedTouches[0].clientX-sx;
+    el.classList.remove('swiping');el.classList.add('snap-back');
+    if(dx>80){justSwiped=true;setTimeout(()=>justSwiped=false,300);toggleItem(idx);}
+    else if(dx<-80){justSwiped=true;setTimeout(()=>justSwiped=false,300);items.splice(idx,1);saveItems();renderList();}
+    else{el.style.transform='';}
+    setTimeout(()=>{if(el)el.classList.remove('snap-back');},250);
+    sw=false;
+  });
+}
+
+// ════════════════════════════════════════════════
 //  QUICK CHIPS
 // ════════════════════════════════════════════════
 const QN=['Hljeb bijeli','Mlijeko','Jaja L','Maslac','Šećer','Ulje suncokret','Jogurt','Sir bijeli','Piletina cijela','Banana','Kafa mljeven','Krompir','Paradajz','Pasta za zube','Prašak Ariel'];
@@ -1364,7 +1747,7 @@ document.getElementById('quick-chips').innerHTML=QN.map(name=>`<div style="paddi
 function quickAdd(name){
   const mem=priceMemory[name.toLowerCase()];if(!mem){toast('Dodaj ručno');return;}
   if(items.find(i=>i.name.toLowerCase()===name.toLowerCase()&&!i.checked)){toast('⚠️ Već na listi!');return;}
-  items.push({name:mem.name||name,qty:mem.qty||'',price:mem.price||0,cat:mem.cat||'ostalo',store:'',checked:false,id:Date.now()});
+  items.push({name:mem.name||name,qty:mem.qty||'',price:mem.price||0,cat:mem.cat||'ostalo',store:'',checked:false,id:Date.now(),priority:'normal',note:''});
   saveItems();toast('✓ '+name);
   if(document.getElementById('page-list').classList.contains('active'))renderList();
 }
@@ -1372,6 +1755,9 @@ function quickAdd(name){
 // ════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════
+applyTheme();
+initVoice();
+requestNotifPermission();
 checkUrl();
 renderList();
 updateBuyerUI();
@@ -1380,6 +1766,64 @@ document.getElementById('pt-nedim').className='pt-btn pt-nedim';
 document.getElementById('pt-azra').className='pt-btn';
 // Start Firebase
 initFirebase();
+// Presence heartbeat
+setInterval(()=>{if(activeBuyer&&syncEnabled)updatePresence(items.some(i=>i.checked));},60000);
+
+// ════════════════════════════════════════════════
+//  PWA — Service Worker & Install Prompt
+// ════════════════════════════════════════════════
+let deferredPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.log('SW error:', err));
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  if (document.getElementById('pwa-banner')) return;
+  const banner = document.createElement('div');
+  banner.className = 'pwa-install-banner';
+  banner.id = 'pwa-banner';
+  banner.innerHTML = `
+    <span class="pwa-icon">📲</span>
+    <div class="pwa-text">
+      <div class="pwa-title">Instaliraj aplikaciju</div>
+      <div class="pwa-desc">Dodaj Kupovinu na svoj ekran</div>
+    </div>
+    <button class="pwa-install-btn" id="pwa-install-btn">Instaliraj</button>
+    <button class="pwa-close-btn" id="pwa-close-btn">&times;</button>
+  `;
+  document.body.appendChild(banner);
+
+  document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+      toast('Aplikacija instalirana!');
+    }
+    deferredPrompt = null;
+    banner.remove();
+  });
+
+  document.getElementById('pwa-close-btn').addEventListener('click', () => {
+    banner.remove();
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  const b = document.getElementById('pwa-banner');
+  if (b) b.remove();
+  toast('Kupovina je instalirana!');
+});
 </script>
 </body>
 </html>
